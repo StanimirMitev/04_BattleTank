@@ -14,18 +14,14 @@ UCLASS()
 class BATTLETANKS_API ATankAIController : public AAIController
 {
 	GENERATED_BODY()
-	
+
 private:
-
-	ATank* GetPlayerControlledTank() const;
-
-	void AimTowardEnemy();
+	//the minimum distance the ai can come close to the player
+	float AcceptanceRadius = 3000;
 
 public:
 	virtual void BeginPlay() override;
 	
 	virtual void Tick(float DeltaTime) override;
-
-	ATank* GetControlledTank() const;
 	
 };
