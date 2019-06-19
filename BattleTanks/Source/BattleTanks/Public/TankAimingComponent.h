@@ -9,8 +9,17 @@
 #include "Components/ActorComponent.h"
 #include "TankAimingComponent.generated.h"
 
+UENUM()
+enum class EFiringState : uint8
+{
+	Reloading,
+	Aiming,
+	Locked
+};
+
 class UTankBarrel;
 class UTankTurret;
+class AProjectile;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BATTLETANKS_API UTankAimingComponent : public UActorComponent
@@ -21,25 +30,39 @@ private:
 	UTankBarrel* Barrel = nullptr;
 	UTankTurret* Turret = nullptr;
 
+	double LastFireTime = 0.0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	TSubclassOf<AProjectile> ProjectileBlueprint;
+
+	UTankAimingComponent();
 	bool HasAimSollution(FVector& LaunchVelocity, const FVector& StarLocation, const FVector EndLocation, float LaunchSpeed);
 	void MoveBarrelTowards(const FVector& AimDirection);
 	void RotateTurretTowads(const FVector& AimDirection);
 
+	void BindActionFire();
+
 public:	
 	// Sets default values for this component's properties
-	UTankAimingComponent();
-	void AimAt(FVector Location, float LaunchSpeed);
-	void SetBarrelReference(UTankBarrel* BarrelComponent);
-	void SetTurretReference(UTankTurret* TurretComponent);
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+	void Initialise(UTankBarrel* SetBarrel, UTankTurret* SetTurret);
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:	
+	void AimAt(FVector Location);
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+		float ReloadTimeInSeconds = 3.0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+		float LaunchSpeed = 4500.0;
+
+	UFUNCTION(BlueprintCallable, Category = "Firing")
+		void Fire();
+
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	EFiringState TankFiringState = EFiringState::Reloading;
+	// Called when the game starts
+	virtual void BeginPlay() override;
 };

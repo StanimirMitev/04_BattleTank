@@ -3,6 +3,8 @@
 #include "Public/TankAimingComponent.h"
 #include "Public/TankBarrel.h"
 #include "Public/TankTurret.h"
+#include "Public/Projectile.h"
+
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -12,6 +14,14 @@ UTankAimingComponent::UTankAimingComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
+}
+
+void UTankAimingComponent::Initialise(UTankBarrel* SetBarrel, UTankTurret* SetTurret)
+{
+	if(!ensure(SetBarrel && SetTurret)) { return; }
+
+	Barrel = SetBarrel;
+	Turret = SetTurret;
 }
 
 // Called when the game starts
@@ -31,9 +41,9 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-void UTankAimingComponent::AimAt(FVector Location, float LaunchSpeed)
+void UTankAimingComponent::AimAt(FVector Location)
 {
-	if (!Barrel || !Turret) { return; }
+	if (!ensure(Barrel && Turret)) { return; }
 	
 	FVector OutLaunchVelocity;
 	FVector StartLocation = Barrel->GetSocketLocation(FName("GunPoint"));
@@ -45,21 +55,6 @@ void UTankAimingComponent::AimAt(FVector Location, float LaunchSpeed)
 		RotateTurretTowads(AimDirection);
 		MoveBarrelTowards(AimDirection);
 	}
-	else
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("%f: failed to find solution"), GetWorld()->GetTimeSeconds())
-	}
-
-}
-
-void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelComponent)
-{
-	this->Barrel = BarrelComponent;
-}
-
-void UTankAimingComponent::SetTurretReference(UTankTurret* TurretComponent)
-{
-	this->Turret = TurretComponent;
 }
 
 bool UTankAimingComponent::HasAimSollution(FVector& LaunchVelocity, const FVector& StarLocation, const FVector EndLocation, float LaunchSpeed)
@@ -80,14 +75,29 @@ bool UTankAimingComponent::HasAimSollution(FVector& LaunchVelocity, const FVecto
 
 void UTankAimingComponent::MoveBarrelTowards(const FVector& AimDirection)
 {
-	if (!Barrel) { return; }
+	if (!ensure(Barrel)) { return; }
+
 	FRotator DeltaRotation = AimDirection.Rotation() - Barrel->GetForwardVector().Rotation();
 	Barrel->Elevate(DeltaRotation.Pitch);
 }
 
 void UTankAimingComponent::RotateTurretTowads(const FVector& AimDirection)
 {
-	if (!Turret) { return; }
+	if (!ensure(Turret)) { return; }
+
 	FRotator DeltaRotation = AimDirection.Rotation() - Turret->GetForwardVector().Rotation();
 	Turret->Rotate(DeltaRotation.Yaw);
+}
+
+void UTankAimingComponent::Fire()
+{
+	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+	// TODO fix
+	if (!ensure(Barrel && Turret && ProjectileBlueprint)) { return; }
+
+	FTransform SocketTransformDate = Barrel->GetSocketTransform("GunPoint");
+	auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, SocketTransformDate);
+	if (!Projectile) { return; }
+	Projectile->LaunchProjectile(LaunchSpeed);
+	LastFireTime = FPlatformTime::Seconds();
 }
