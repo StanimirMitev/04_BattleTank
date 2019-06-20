@@ -27,9 +27,10 @@ class BATTLETANKS_API UTankAimingComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
+
 	UTankBarrel* Barrel = nullptr;
 	UTankTurret* Turret = nullptr;
-
+	FVector AimDirection;
 	double LastFireTime = 0.0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
@@ -39,7 +40,7 @@ private:
 	bool HasAimSollution(FVector& LaunchVelocity, const FVector& StarLocation, const FVector EndLocation, float LaunchSpeed);
 	void MoveBarrelTowards(const FVector& AimDirection);
 	void RotateTurretTowads(const FVector& AimDirection);
-
+	bool IsBarrelMoving();
 	void BindActionFire();
 
 public:	

@@ -29,8 +29,15 @@ void UTankAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	// so that first fire is after initial reload
+	LastFireTime = FPlatformTime::Seconds();
 	
+}
+
+bool UTankAimingComponent::IsBarrelMoving()
+{
+	if (!ensure(Barrel)) {return false;}
+	return !(Barrel->GetForwardVector().Equals(AimDirection, 0.01));
 }
 
 // Called every frame
@@ -38,7 +45,18 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds)
+	{
+		TankFiringState = EFiringState::Reloading;
+	}
+	else if(IsBarrelMoving())
+	{
+		TankFiringState = EFiringState::Aiming;
+	}
+	else
+	{
+		TankFiringState = EFiringState::Locked;
+	}
 }
 
 void UTankAimingComponent::AimAt(FVector Location)
@@ -51,7 +69,7 @@ void UTankAimingComponent::AimAt(FVector Location)
 	//if successfull print and normalize launch velocity
 	if (HasAimSollution(OutLaunchVelocity, StartLocation, Location, LaunchSpeed))
 	{
-		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
+		AimDirection = OutLaunchVelocity.GetSafeNormal();
 		RotateTurretTowads(AimDirection);
 		MoveBarrelTowards(AimDirection);
 	}
@@ -90,14 +108,15 @@ void UTankAimingComponent::RotateTurretTowads(const FVector& AimDirection)
 }
 
 void UTankAimingComponent::Fire()
-{
-	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
-	// TODO fix
-	if (!ensure(Barrel && Turret && ProjectileBlueprint)) { return; }
-
-	FTransform SocketTransformDate = Barrel->GetSocketTransform("GunPoint");
-	auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, SocketTransformDate);
-	if (!Projectile) { return; }
-	Projectile->LaunchProjectile(LaunchSpeed);
-	LastFireTime = FPlatformTime::Seconds();
+{	
+	if (TankFiringState != EFiringState::Reloading)
+	{
+		if (!ensure(ProjectileBlueprint)) { return; }
+		if (!ensure(Barrel)) { return; }
+		FTransform SocketTransformDate = Barrel->GetSocketTransform("GunPoint");
+		auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, SocketTransformDate);
+		if (!Projectile) { return; }
+		Projectile->LaunchProjectile(LaunchSpeed);
+		LastFireTime = FPlatformTime::Seconds();
+	}
 }
