@@ -14,8 +14,9 @@ class BATTLETANKS_API ATankAIController : public AAIController
 {
 	GENERATED_BODY()
 
-private:
+protected:
 	//the minimum distance the ai can come close to the player
+	UPROPERTY(EditAnywhere, Category = Setup)
 	float AcceptanceRadius = 3000;
 
 public:

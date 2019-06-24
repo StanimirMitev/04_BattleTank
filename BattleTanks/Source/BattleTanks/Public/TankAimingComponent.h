@@ -14,7 +14,8 @@ enum class EFiringState : uint8
 {
 	Reloading,
 	Aiming,
-	Locked
+	Locked,
+	OutOfAmmo
 };
 
 class UTankBarrel;
@@ -42,6 +43,7 @@ private:
 	void RotateTurretTowads(const FVector& AimDirection);
 	bool IsBarrelMoving();
 	void BindActionFire();
+	int GetAmmo() const;
 
 public:	
 	// Sets default values for this component's properties
@@ -60,6 +62,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Firing")
 		void Fire();
+	
+	EFiringState GetTankFiringState();
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Tank")
+	int Ammo = 13;
+
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
