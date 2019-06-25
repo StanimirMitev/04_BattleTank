@@ -43,7 +43,7 @@ private:
 	void RotateTurretTowads(const FVector& AimDirection);
 	bool IsBarrelMoving();
 	void BindActionFire();
-	int GetAmmo() const;
+	int32 GetAmmo() const;
 
 public:	
 	// Sets default values for this component's properties
@@ -56,6 +56,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 		float ReloadTimeInSeconds = 3.0;
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+		int32 Ammo = 13;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 		float LaunchSpeed = 4500.0;
@@ -64,9 +66,7 @@ public:
 		void Fire();
 	
 	EFiringState GetTankFiringState();
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Tank")
-	int Ammo = 13;
+
 
 
 protected:
