@@ -109,16 +109,14 @@ void UTankAimingComponent::RotateTurretTowads(const FVector& AimDirection)
 {
 	if (!ensure(Turret)) { return; }
 	FRotator DeltaRotation = AimDirection.Rotation() - Turret->GetForwardVector().Rotation();
-	if (DeltaRotation.Yaw < -350)
+	if (FMath::Abs(DeltaRotation.Yaw) < 180)
 	{
-		DeltaRotation.Yaw += 360;
+		Turret->Rotate(DeltaRotation.Yaw);
 	}
-	else if (DeltaRotation.Yaw > 350)
+	else
 	{
-		DeltaRotation.Yaw -= 360;
+		Turret->Rotate(-DeltaRotation.Yaw);
 	}
-
-	Turret->Rotate(DeltaRotation.Yaw);
 }
 
 void UTankAimingComponent::Fire()
