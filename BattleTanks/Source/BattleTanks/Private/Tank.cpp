@@ -22,3 +22,14 @@ void ATank::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+float ATank::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	float DamageToApply = FMath::Clamp<float>(DamageAmount, 0.0f, CurrentHealth);
+	UE_LOG(LogTemp, Warning, TEXT("Damage Ammount: %f  || DamageToApply: %f"), DamageAmount, DamageToApply)
+	CurrentHealth -= DamageToApply;
+	if (CurrentHealth <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Tank has gone kaboom"))
+	}
+	return DamageToApply;
+}

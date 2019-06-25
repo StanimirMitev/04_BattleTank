@@ -11,6 +11,7 @@
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Runtime/Engine/Classes/Engine/EngineTypes.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Projectile.generated.h"
 
 UCLASS()
@@ -47,4 +48,6 @@ private:
 	void OnTimeExpire();
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float DestroyDelay = 3.69f; 
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float ProjectileDamage;
 };
