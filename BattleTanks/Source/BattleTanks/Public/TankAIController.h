@@ -9,10 +9,16 @@
 #include "TankAIController.generated.h"
 
 
+
 UCLASS()
 class BATTLETANKS_API ATankAIController : public AAIController
 {
 	GENERATED_BODY()
+
+private:
+	virtual void SetPawn(APawn* InPawn) override;
+	UFUNCTION()
+	void OnPossessedTankDeath();
 
 protected:
 	//the minimum distance the ai can come close to the player
