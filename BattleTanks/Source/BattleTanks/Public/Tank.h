@@ -11,17 +11,19 @@ class BATTLETANKS_API ATank : public APawn
 	GENERATED_BODY()
 
 public:	
-	// Called every frame
 	ATank();
 	
 	virtual void BeginPlay() override;
-	
 	virtual void Tick(float DeltaTime) override;
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) override;
+	UPROPERTY(BlueprintReadOnly, Category = "Health")
+	float HealthPercentage;
 private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	float TankMaxHealth = 100;
+	float TankMaxHealth = 100.0f;
 	UPROPERTY(EditAnywhere, Category = "Health")
 	float CurrentHealth = TankMaxHealth;
+
+	void UpdateHealthPercentage();
 };

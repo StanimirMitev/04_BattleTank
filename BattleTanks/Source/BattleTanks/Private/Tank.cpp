@@ -8,6 +8,7 @@ ATank::ATank()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+	HealthPercentage = CurrentHealth / TankMaxHealth;
 }
 
 // Called when the game starts or when spawned
@@ -27,9 +28,15 @@ float ATank::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 	float DamageToApply = FMath::Clamp<float>(DamageAmount, 0.0f, CurrentHealth);
 	UE_LOG(LogTemp, Warning, TEXT("Damage Ammount: %f  || DamageToApply: %f"), DamageAmount, DamageToApply)
 	CurrentHealth -= DamageToApply;
+	UpdateHealthPercentage();
 	if (CurrentHealth <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tank has gone kaboom"))
 	}
 	return DamageToApply;
+}
+
+void ATank::UpdateHealthPercentage()
+{
+	HealthPercentage = CurrentHealth / TankMaxHealth;
 }
